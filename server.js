@@ -1,37 +1,45 @@
-const fs = require('fs');
-const express = require('express');
-const fetch = require('node-fetch');
-const path = require('path');
-const process = require('process');
+const fs = require("fs");
+const express = require("express");
+const fetch = require("node-fetch");
+const path = require("path");
+const process = require("process");
 const app = express();
 const PORT = 8000;
 const URL = `http://127.0.0.1:${PORT}`;
 var data_dir = "data";
 
-path.join(__dirname, '/data/Dataset.json');
-path.join(__dirname, '/data/Astrosat_Pubs.json');
-path.join(__dirname, '/data/Astrosat.json');
-path.join(__dirname, '/data/BtoC.json');
-path.join(__dirname, 'index.html');
-path.join(__dirname, 'script.js');
+path.join(__dirname, "/data/Dataset.json");
+path.join(__dirname, "/data/Astrosat_Pubs.json");
+path.join(__dirname, "/data/Astrosat.json");
+path.join(__dirname, "/data/BtoC.json");
+path.join(__dirname, "index.html");
+path.join(__dirname, "script.js");
 
 var standard_input = process.stdin;
-standard_input.setEncoding('utf-8');
+standard_input.setEncoding("utf-8");
 console.log("Specify data folder for json files or press enter for default: ");
-standard_input.on('data', function(data) {
-    if (data != "\n") {
+standard_input.on("data", function (data) {
+    if (data !== "\n") {
         data_dir = data.replace(/\n*$/, "");
         console.log("Sourcing json files from ", data_dir, " directory");
     }
 
     app.listen(PORT, () => console.log(`App is live at ${URL}`));
-
 });
 
-const Dataset = JSON.parse(fs.readFileSync(path.join(__dirname, data_dir, "Dataset.json"), 'utf8'));
-let Publications = (JSON.parse(fs.readFileSync(path.join(__dirname, data_dir, "Astrosat_Pubs.json"), 'utf8')));
+const Dataset = JSON.parse(
+    fs.readFileSync(path.join(__dirname, data_dir, "Dataset.json"), "utf8")
+);
+let Publications = JSON.parse(
+    fs.readFileSync(
+        path.join(__dirname, data_dir, "Astrosat_Pubs.json"),
+        "utf8"
+    )
+);
 Publications = Publications.publications;
-const B2C = JSON.parse(fs.readFileSync(path.join(__dirname, data_dir, "BtoC.json"), 'utf8'));
+const B2C = JSON.parse(
+    fs.readFileSync(path.join(__dirname, data_dir, "BtoC.json"), "utf8")
+);
 
 let astro = [],
     not_astro = [];
@@ -47,20 +55,28 @@ for (let obj of Dataset) {
 
 // rendering index.html
 app.get("/", (req, res) => {
-    fs.readFile(path.join(__dirname, 'index.html'), 'utf8', function(err, data) {
-        res.end(data);
-    });
+    fs.readFile(
+        path.join(__dirname, "index.html"),
+        "utf8",
+        function (err, data) {
+            res.end(data);
+        }
+    );
 });
 
 // rendering script.js
-app.get('/script.js', function(req, res) {
-    fs.readFile(path.join(__dirname, "script.js"), 'utf8', function(err, data) {
-        res.end(data);
-    });
+app.get("/script.js", function (req, res) {
+    fs.readFile(
+        path.join(__dirname, "script.js"),
+        "utf8",
+        function (err, data) {
+            res.end(data);
+        }
+    );
 });
 
 // rendering /dataset api
-app.get('/dataset', function(req, res) {
+app.get("/dataset", function (req, res) {
     if (Object.keys(req.query).length !== 0) {
         // console.log('received trace and index');
         let { traceIndex, pointIndex } = req.query;
@@ -70,8 +86,8 @@ app.get('/dataset', function(req, res) {
         // console.log("trace", traceIndex, "pointIndex", pointIndex);
         if (traceIndex === 0) {
             let to_send = { source_data: astro[pointIndex], publications: [] };
-            fetch(URL + '/b2c' + '?index=' + `${pointIndex}`)
-                .then(response => response.json())
+            fetch(URL + "/b2c" + "?index=" + `${pointIndex}`)
+                .then((response) => response.json())
                 .then((data) => {
                     if (data.flag === true) {
                         const indexes_ = data.indexes;
@@ -90,7 +106,7 @@ app.get('/dataset', function(req, res) {
         }
     } else {
         // console.log(`sent all data`);
-        res.json({ "astro": astro, "not_astro": not_astro });
+        res.json({ astro: astro, not_astro: not_astro });
     }
 });
 
@@ -105,7 +121,7 @@ function search_in_C(index) {
     }
 }
 
-app.get('/b2c', function(req, res) {
+app.get("/b2c", function (req, res) {
     // console.log("b2c api",req.query);
     if (Object.keys(req.query).length !== 0) {
         if (req.query.index !== undefined) {
@@ -119,9 +135,9 @@ app.get('/b2c', function(req, res) {
                 res.json({ flag: false });
             }
         } else {
-            console.log('b2c received invalid req');
+            console.log("b2c received invalid req");
         }
     } else {
-        console.log('b2c received empty req');
+        console.log("b2c received empty req");
     }
 });

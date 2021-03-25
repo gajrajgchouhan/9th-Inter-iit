@@ -3,7 +3,13 @@ const { Parser } = window.json2csv;
 
 // Grid
 // right asc.
-const grid_ra_x = [-180, -150, -120, -90, -60, -30,
+const grid_ra_x = [
+    -180,
+    -150,
+    -120,
+    -90,
+    -60,
+    -30,
     0,
     30,
     60,
@@ -60,22 +66,22 @@ const grid_dec_textposition = [
 
 let graph = document.getElementById("graph");
 
-Plotly.d3.json(url, function(figure) {
+Plotly.d3.json(url, function (figure) {
     function unpack(rows, key) {
-        return rows.map(function(row) {
+        return rows.map(function (row) {
             // console.log("in unpack",row);
             return row[key];
         });
     }
     // unpack_glat to extract Galactic latitudes
     function unpack_glat(rows, key) {
-        return rows.map(function(row) {
+        return rows.map(function (row) {
             return parseFloat(row[key]);
         });
     }
     // unpack_glon to extract Galactic longitudes
     function unpack_glon(rows, key) {
-        return rows.map(function(row) {
+        return rows.map(function (row) {
             let current_lon = parseFloat(row[key]);
             if (current_lon > 180.0) {
                 current_lon -= 360.0;
@@ -88,7 +94,8 @@ Plotly.d3.json(url, function(figure) {
 
     let hover_template =
         "Lon: %{lon}<br>Lat: %{lat}<br>Name: %{text}<br>Astrosat Observed: %{customdata}";
-    let trace = [{
+    let trace = [
+        {
             mode: "markers",
             name: "Sources (Observed by AstroSat)",
             type: "scattergeo",
@@ -129,8 +136,8 @@ Plotly.d3.json(url, function(figure) {
             text: grid_ra_hovtext,
             hoverinfo: "none",
             textfont: {
-                size: 8,
-                color: "#696969",
+                size: 10,
+                color: "#fff",
             },
             textposition: grid_ra_textposition,
             showlegend: false,
@@ -144,8 +151,8 @@ Plotly.d3.json(url, function(figure) {
             text: grid_dec_hovtext,
             hoverinfo: "none",
             textfont: {
-                size: 8,
-                color: "#696969",
+                size: 10,
+                color: "#fff",
             },
             textposition: grid_dec_textposition,
             showlegend: false,
@@ -179,18 +186,19 @@ Plotly.d3.json(url, function(figure) {
             showocean: false,
             showcountries: false,
             showsubunits: false,
-            bgcolor:  'rgba(0,0,0,0)',
+            bgcolor: "rgba(0,0,0,0)",
         },
         yaxis: { title: "LAT" },
         xaxis: { title: "LON" },
         font: {
             size: 24,
+            color: "#fff",
         },
         margin: {
-            l:0,
-            r:0,
-            t:0,
-            b:0,
+            l: 0,
+            r: 0,
+            t: 0,
+            b: 0,
         },
         paper_bgcolor: "transparent",
         // plot_bgcolor: "#f4fbfe",
@@ -226,13 +234,13 @@ Plotly.d3.json(url, function(figure) {
             overflowColumns: "linebreak",
         },
     };
-    graph.on("plotly_click", function(data) {
+    graph.on("plotly_click", function (data) {
         const { curveNumber, pointNumber } = data.points[0];
         fetch(url + "?traceIndex=" + curveNumber + "&pointIndex=" + pointNumber)
             .then((response) => {
                 return response.json();
             })
-            .then(function(response) {
+            .then(function (response) {
                 const { source_data, publications } = response;
                 const data_div = document.getElementById("showdata");
                 while (data_div.firstChild) {
@@ -241,7 +249,7 @@ Plotly.d3.json(url, function(figure) {
                 let ele1 = document.createElement("div");
                 ele1.className += "col-sm text-center";
                 let ele2 = document.createElement("h3");
-                ele2.className+="text-white";
+                ele2.className += "text-white";
                 ele2.innerHTML =
                     "Data for " +
                     source_data.Name +
@@ -249,7 +257,11 @@ Plotly.d3.json(url, function(figure) {
 
                 // information table
                 const data_keys = ["Name", "GLON", "GLAT", "Astrosat_obs"];
-                const data_keys_observed = ["Astrosat_Instrument", "Observation_Id", "ProposalId"];
+                const data_keys_observed = [
+                    "Astrosat_Instrument",
+                    "Observation_Id",
+                    "ProposalId",
+                ];
 
                 for (let key of data_keys) {
                     table_info(key, info(key), source_data);
@@ -262,9 +274,11 @@ Plotly.d3.json(url, function(figure) {
                     }
                     const curr_title = ele2.innerHTML;
                     const i = curr_title.search("<small>");
-                    ele2.innerHTML = curr_title.substr(0, i) + ` (${source_data["Source Name"]})` + curr_title.substr(i, curr_title.length - i);
-                }
-                else {
+                    ele2.innerHTML =
+                        curr_title.substr(0, i) +
+                        ` (${source_data["Source Name"]})` +
+                        curr_title.substr(i, curr_title.length - i);
+                } else {
                     for (let key of data_keys_observed) {
                         document.getElementById(info(key)).hidden = true;
                         document.getElementById(key).hidden = true;
@@ -279,7 +293,8 @@ Plotly.d3.json(url, function(figure) {
                         const fileName = `${source_data["Name"]}.json`;
                         // Create a blob of the data
                         let fileToSave = new Blob(
-                            [JSON.stringify(source_data, null, 3)], {
+                            [JSON.stringify(source_data, null, 3)],
+                            {
                                 type: "application/json",
                                 name: fileName,
                             }
@@ -360,11 +375,15 @@ Plotly.d3.json(url, function(figure) {
 
                     div1 = document.getElementById("publication_pdf");
 
-                    if (document.getElementById("download_pdf_publication") === null) {
+                    if (
+                        document.getElementById("download_pdf_publication") ===
+                        null
+                    ) {
                         let button1 = document.createElement("button");
                         button1.setAttribute("id", `download_pdf_publication`);
                         button1.className += "btn btn-success me-2";
-                        button1.innerHTML = "Download Publications information PDF";
+                        button1.innerHTML =
+                            "Download Publications information PDF";
                         div1.appendChild(button1);
                     }
                     $("#download_pdf_publication")
@@ -388,7 +407,9 @@ Plotly.d3.json(url, function(figure) {
                             console.log(publications);
                             // if publication atleast 1
                             for (
-                                let index = 0; index < publications.length; index++
+                                let index = 0;
+                                index < publications.length;
+                                index++
                             ) {
                                 row.push(["        ", "        "]);
                                 row.push(["Publication", index + 1]);
@@ -399,10 +420,7 @@ Plotly.d3.json(url, function(figure) {
                                 ]);
                             }
                             doc.autoTable(col, row);
-                            doc.save(
-                                `${source_data["Name"]}.pdf`,
-                                pdf_config
-                            );
+                            doc.save(`${source_data["Name"]}.pdf`, pdf_config);
                         });
                     document.getElementById("pub_table").hidden = false;
                 } else {
@@ -416,10 +434,8 @@ Plotly.d3.json(url, function(figure) {
     });
 });
 
-const info = a => `info_${a}`;
+const info = (a) => `info_${a}`;
 
 function table_info(key, value, response) {
-    document
-        .getElementById(value)
-        .innerHTML = response[key];
+    document.getElementById(value).innerHTML = response[key];
 }
