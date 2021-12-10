@@ -2,7 +2,6 @@ const fs = require("fs");
 const express = require("express");
 const fetch = require("node-fetch");
 const path = require("path");
-const process = require("process");
 const app = express();
 const PORT = 8000;
 const URL = `http://127.0.0.1:${PORT}`;
@@ -15,17 +14,7 @@ path.join(__dirname, "/data/BtoC.json");
 path.join(__dirname, "index.html");
 path.join(__dirname, "script.js");
 
-var standard_input = process.stdin;
-standard_input.setEncoding("utf-8");
-console.log("Specify data folder for json files or press enter for default: ");
-standard_input.on("data", function (data) {
-    if (data !== "\n") {
-        data_dir = data.replace(/\n*$/, "");
-        console.log("Sourcing json files from ", data_dir, " directory");
-    }
-
-    app.listen(PORT, () => console.log(`App is live at ${URL}`));
-});
+app.listen(PORT, () => console.log(`App is live at ${URL}`));
 
 const Dataset = JSON.parse(
     fs.readFileSync(path.join(__dirname, data_dir, "Dataset.json"), "utf8")
