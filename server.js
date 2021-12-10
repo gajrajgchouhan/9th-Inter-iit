@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const path = require("path");
 const app = express();
 const PORT = 8000;
-const URL = `http://127.0.0.1:${PORT}`;
+const URL = `http://127.0.0.1:${process.env.PORT || PORT}`;
 var data_dir = "data";
 
 path.join(__dirname, "/data/Dataset.json");
@@ -14,11 +14,14 @@ path.join(__dirname, "/data/BtoC.json");
 path.join(__dirname, "index.html");
 path.join(__dirname, "script.js");
 
-app.listen(PORT, () => console.log(`App is live at ${URL}`));
+app.listen(process.env.PORT || PORT, () =>
+    console.log(`App is live at ${URL}`)
+);
 
 const Dataset = JSON.parse(
     fs.readFileSync(path.join(__dirname, data_dir, "Dataset.json"), "utf8")
 );
+
 let Publications = JSON.parse(
     fs.readFileSync(
         path.join(__dirname, data_dir, "Astrosat_Pubs.json"),
@@ -26,6 +29,7 @@ let Publications = JSON.parse(
     )
 );
 Publications = Publications.publications;
+
 const B2C = JSON.parse(
     fs.readFileSync(path.join(__dirname, data_dir, "BtoC.json"), "utf8")
 );
